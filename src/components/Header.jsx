@@ -361,7 +361,7 @@ export function Header() {
       >
         {isHomePage && (
           <>
-            <div
+            {/* <div
               ref={avatarRef}
               className="order-last mt-[calc(theme(spacing.16)-theme(spacing.3))]"
             />
@@ -388,7 +388,7 @@ export function Header() {
                   />
                 </div>
               </div>
-            </Container>
+            </Container> */}
           </>
         )}
         <div

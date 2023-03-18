@@ -6,6 +6,7 @@ import clsx from 'clsx'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Container } from '@/components/Container'
+import {Select} from '@/components/Select'
 import {
   GitHubIcon,
   InstagramIcon,
@@ -24,6 +25,7 @@ import image5 from '@/images/photos/image-5.jpg'
 import { formatDate } from '@/lib/formatDate'
 import { generateRssFeed } from '@/lib/generateRssFeed'
 import { getAllArticles } from '@/lib/getAllArticles'
+import { platforms,languages } from '@/lib/captionPlatforms'
 
 function MailIcon(props) {
   return (
@@ -251,55 +253,97 @@ export default function Home({ articles }) {
     <>
       <Head>
         <title>
-          Spencer Sharp - Software designer, founder, and amateur astronaut
+          AI Caption Generator
         </title>
         <meta
           name="description"
-          content="I’m Spencer, a software designer and entrepreneur based in New York City. I’m the founder and CEO of Planetaria, where we develop technologies that empower regular people to explore space on their own terms."
+          content="We invest in the world’s potential"
         />
       </Head>
       <Container className="mt-9">
-        <div className="max-w-2xl">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
-            Software designer, founder, and amateur astronaut.
+        <div className="w-full">
+          <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl text-center">
+            We invest in the world’s potential
           </h1>
-          <p className="mt-6 text-base text-zinc-600 dark:text-zinc-400">
-            I’m Spencer, a software designer and entrepreneur based in New York
-            City. I’m the founder and CEO of Planetaria, where we develop
-            technologies that empower regular people to explore space on their
-            own terms.
-          </p>
-          <div className="mt-6 flex gap-6">
-            <SocialLink
-              href="https://twitter.com"
-              aria-label="Follow on Twitter"
-              icon={TwitterIcon}
-            />
-            <SocialLink
-              href="https://instagram.com"
-              aria-label="Follow on Instagram"
-              icon={InstagramIcon}
-            />
-            <SocialLink
-              href="https://github.com"
-              aria-label="Follow on GitHub"
-              icon={GitHubIcon}
-            />
-            <SocialLink
-              href="https://linkedin.com"
-              aria-label="Follow on LinkedIn"
-              icon={LinkedInIcon}
-            />
+          <div className='w-full mt-6'>
+            <div className='max-w-2xl mx-auto'>
+              <p className="text-lg text-zinc-600 dark:text-zinc-400 text-center">
+                I’m Spencer, a software designer and entrepreneur based in New York
+                City. I’m the founder and CEO of Planetaria, where we develop
+                technologies that empower regular people to explore space on their
+                own terms.
+              </p>
+            </div>
           </div>
         </div>
       </Container>
-      <Photos />
-      <Container className="mt-24 md:mt-28">
+      <Container className="mt-20 md:mt-20">
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
-            {articles.map((article) => (
-              <Article key={article.slug} article={article} />
-            ))}
+            <form className='rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40'>
+              <div className="grid gap-6 mb-6 md:grid-cols-2">
+                <div>
+                    <label htmlFor="language" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select language</label>
+                    <Select data={languages}></Select>
+                </div>
+                <div>
+                    <label htmlFor="context" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select platform</label>
+                    <Select data={platforms}></Select>
+                </div>
+              </div>
+              <div className="mb-6">
+                  <label htmlFor="topic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Post topic</label>
+                  <textarea 
+                    id="topic"
+                    rows={4}
+                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
+                    placeholder="Inspiring community members to share their voices and ideas openly." 
+                    required 
+                  />
+              </div>
+              <div className="grid gap-6 mb-6 md:grid-cols-2">
+                <div>
+                    <label htmlFor="language" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select language</label>
+                    <Select data={languages}></Select>
+                </div>
+                <div>
+                    <label htmlFor="context" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select platform</label>
+                    <Select data={platforms}></Select>
+                </div>
+              </div>
+              <div className="mb-6">
+                  <label htmlFor="webUrl" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Enter Web site URL (optional)</label>
+                  <input 
+                    type="url" 
+                    id="webUrl" 
+                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
+                    placeholder="Enter website URL" 
+                  />
+              </div>
+              <div className="mb-6">
+                  <label htmlFor="socialUrl" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Enter Social Media URL (optional)</label>
+                  <input 
+                    type="url" 
+                    id="socialUrl" 
+                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
+                    placeholder="Enter social media URL" 
+                  />
+              </div>
+              <div className="mb-6">
+                  <label htmlFor="keyword" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Keywords (optional)</label>
+                  <input 
+                    type="text" 
+                    id="keyword" 
+                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
+                    placeholder="Enter keywords" 
+                  />
+              </div>
+              <div className="mb-6 w-full text-center">
+                <Button type="submit" className="w-full max-w-md">
+                  Generate Captions
+                </Button>
+              </div>
+            </form>
           </div>
           <div className="space-y-10 lg:pl-16 xl:pl-24">
             <Newsletter />
