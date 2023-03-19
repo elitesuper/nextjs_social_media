@@ -20,3 +20,12 @@ export const variants = [
     { id: 2, name: '2 Variants', unavailable: false },
     { id: 3, name: '3 Variants', unavailable: false },  
 ]
+
+export const tones = [
+    { id: 1, name: 'Optimal', unavailable: false },
+    { id: 2, name: 'Formal', unavailable: false },
+    { id: 3, name: 'Casual', unavailable: false },
+    { id: 4, name: 'Direct', unavailable: false },
+    { id: 5, name: 'Indirect', unavailable: false },
+    { id: 6, name: 'Sarcastic', unavailable: false },
+]
