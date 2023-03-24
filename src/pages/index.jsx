@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import { Button } from '@/components/Button'
 import { Card } from '@/components/Card'
 import { Container } from '@/components/Container'
-import {Select} from '@/components/Select'
+import { Select } from '@/components/Select'
 import {
   GitHubIcon,
   InstagramIcon,
@@ -25,7 +25,12 @@ import image5 from '@/images/photos/image-5.jpg'
 import { formatDate } from '@/lib/formatDate'
 import { generateRssFeed } from '@/lib/generateRssFeed'
 import { getAllArticles } from '@/lib/getAllArticles'
-import { platforms,languages, variants, tones } from '@/lib/captionPlatforms'
+import { platforms, languages, variants, tones } from '@/lib/caption-sizes'
+
+import { useState } from 'react'
+import { sizes } from '@/lib/caption-sizes'
+
+
 
 function MailIcon(props) {
   return (
@@ -109,7 +114,12 @@ function SocialLink({ icon: Icon, ...props }) {
   )
 }
 
-function CaptionOutput() {
+function CaptionOutput({ captionText}) {
+
+  function handleCopy(event) {
+    event.preventDefault()
+    navigator.clipboard.writeText(captionText);
+  }
   return (
     <form
       action="/thank-you"
@@ -122,16 +132,18 @@ function CaptionOutput() {
         Get notified when I publish something new, and unsubscribe at any time.
       </p>
       <div className="mt-6 flex">
-        <textarea 
+        <textarea
           id="caption"
+          value={captionText}
           rows={5}
-          className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
-          placeholder="Inspiring community members to share their voices and ideas openly." 
+          readOnly={true}
+          className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm"
+          placeholder="Inspiring community members to share their voices and ideas openly."
         />
       </div>
       <div className="mt-6">
-        <Button type="submit" className="w-full flex-none">
-            Copy
+        <Button onClick={handleCopy} className="w-full flex-none">
+          Copy
         </Button>
       </div>
     </form>
@@ -197,9 +209,8 @@ function Resume() {
               <dt className="sr-only">Date</dt>
               <dd
                 className="ml-auto text-xs text-zinc-400 dark:text-zinc-500"
-                aria-label={`${role.start.label ?? role.start} until ${
-                  role.end.label ?? role.end
-                }`}
+                aria-label={`${role.start.label ?? role.start} until ${role.end.label ?? role.end
+                  }`}
               >
                 <time dateTime={role.start.dateTime ?? role.start}>
                   {role.start.label ?? role.start}
@@ -249,9 +260,67 @@ function Photos() {
 }
 
 export default function Home({ articles }) {
+
+
+  const [loading, setLoading] = useState(false);
+  const [captionText, setCaptionText] = useState("");
+  // forms
+  const [languageInput, setLanguage] = useState(languages[0]);
+  const [platformInput, setPlatform] = useState(platforms[0]);
+  const [topicInput, setTopic] = useState("Avoiding toxic relationships for your health.");
+  const [variantInput, setVariant] = useState(variants[0]);
+  const [toneInput, setTone] = useState(tones[0]);
+  const [sizeInput, setSize] = useState(sizes[0]);
+
+  const [webUrlInput, setWebUrl] = useState("");
+  const [socialUrlInput, setSocialUrl] = useState("");
+
+  async function onSubmitCaption(event) {
+    setLoading(true);
+    event.preventDefault();
+    var reqPost = JSON.stringify({
+      languageInputId : languageInput.id,
+      platformInputId: platformInput.id,
+      variantInputId: variantInput.id,
+      toneInputId:toneInput.id,
+      topicInput,
+      webUrlInput,
+      socialUrlInput,
+      sizeInputId: sizeInput.id,
+    });
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_EXPRESS_API_URL+'/caption/generate', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: reqPost,
+      });
+
+      const data = await response.json();
+
+      if (response.status !== 200) {
+        throw data.error || new Error(`Request failed with status ${response.status}`);
+      }
+      console.log('from server');
+      setCaptionText(data.result);
+
+    } catch (error) {
+      // Consider implementing your own error handling logic here
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+
   return (
     <>
       <Head>
+      <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
         <title>
           AI Caption Generator
         </title>
@@ -280,64 +349,78 @@ export default function Home({ articles }) {
       <Container className="mt-20 md:mt-20">
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
-            <form className='rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40'>
+            <form className='rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40' onSubmit={onSubmitCaption}>
               <div className="grid gap-6 mb-6 md:grid-cols-2">
                 <div>
-                    <label htmlFor="language" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select language</label>
-                    <Select data={languages}></Select>
+                  <label htmlFor="language" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select language</label>
+                  <Select data={languages} onChange={(e) => setLanguage(e)}></Select>
                 </div>
                 <div>
-                    <label htmlFor="context" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select platform</label>
-                    <Select data={platforms}></Select>
+                  <label htmlFor="context" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >Select platform</label>
+                  <Select data={platforms} onChange={(e) => setPlatform(e)}></Select>
                 </div>
               </div>
               <div className="mb-6">
-                  <label htmlFor="topic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Post topic</label>
-                  <textarea 
-                    id="topic"
-                    rows={4}
-                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
-                    placeholder="Inspiring community members to share their voices and ideas openly." 
-                    required 
-                  />
+                <label htmlFor="topic" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >Post topic</label>
+                <textarea
+                  value={topicInput}
+                  id="topic"
+                  rows={4}
+                  className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm"
+                  placeholder="Inspiring community members to share their voices and ideas openly."
+                  onChange={(e) => setTopic(e.target.value)}
+                  required
+                />
               </div>
+
               <div className="grid gap-6 mb-6 md:grid-cols-2">
                 <div>
-                    <label htmlFor="variant" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Number of Variants</label>
-                    <Select data={variants}></Select>
+                  <label htmlFor="size" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Caption Length</label>
+                  <Select data={sizes} onChange={(e) => setSize(e)}></Select>
+                </div>
+              </div>
+
+              <div className="grid gap-6 mb-6 md:grid-cols-2">
+                <div>
+                  <label htmlFor="variant" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Variations</label>
+                  <Select data={variants} onChange={(e) => setVariant(e)}></Select>
                 </div>
                 <div>
-                    <label htmlFor="tone" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select tone</label>
-                    <Select data={tones}></Select>
+                  <label htmlFor="tone" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select writing style</label>
+                  <Select data={tones} onChange={(e) => setTone(e)}></Select>
                 </div>
               </div>
               <div className="mb-6">
-                  <label htmlFor="webUrl" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Web site URL</label>
-                  <input 
-                    type="url" 
-                    id="webUrl" 
-                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
-                    placeholder="Enter website URL" 
-                  />
+                <label htmlFor="webUrl" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Website URL</label>
+                <input
+                  type="url"
+                  id="webUrl"
+                  className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm"
+                  placeholder="Enter website URL"
+                  value={webUrlInput}
+                  onChange={(e) => setWebUrl(e.target.value)}
+                />
               </div>
               <div className="mb-6">
-                  <label htmlFor="socialUrl" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Social media URL</label>
-                  <input 
-                    type="url" 
-                    id="socialUrl" 
-                    className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm" 
-                    placeholder="Enter social media URL" 
-                  />
+                <label htmlFor="socialUrl" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Social media URL</label>
+                <input
+                  type="url"
+                  id="socialUrl"
+                  className="w-full flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10 sm:text-sm"
+                  placeholder="Enter social media URL"
+                  value={socialUrlInput}
+                  onChange={(e) => setSocialUrl(e.target.value)}
+                />
               </div>
               <div className="mb-6 w-full text-center">
-                <Button type="submit" className="w-full max-w-md mt-4">
-                  Generate Captions
+                <Button type="submit" className="w-full max-w-md mt-4" disabled={loading}>
+                  { loading ? 'Loading..' : 'Generate Captions' }
                 </Button>
               </div>
             </form>
           </div>
           <div className="space-y-10 lg:pl-8 xl:pl-12">
-            <CaptionOutput />
+            <CaptionOutput captionText={captionText} />
             {/* <Resume /> */}
           </div>
         </div>
@@ -345,7 +428,6 @@ export default function Home({ articles }) {
     </>
   )
 }
-
 export async function getStaticProps() {
   if (process.env.NODE_ENV === 'production') {
     await generateRssFeed()

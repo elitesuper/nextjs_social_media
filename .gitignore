@@ -33,3 +33,16 @@ yarn-error.log*
 
 # generated files
 /public/rss/
+
+.elasticbeanstalk/
+/demo/
+/server-src/
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
