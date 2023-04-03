@@ -9,7 +9,7 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
   },
-  assetPrefix:'http://45.77.223.207'
+  assetPrefix:'http://45.77.223.207:3000'
 }
 
 const withMDX = nextMDX({
